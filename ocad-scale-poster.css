@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ocad research talks — layered poster</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #efeee8;
+      --paper: rgba(255,255,255,0.68);
+      --paper-strong: rgba(255,255,255,0.82);
+      --text: #111111;
+      --muted: rgba(17,17,17,0.58);
+      --line: rgba(17,17,17,0.08);
+      --accent: #8cff19;
+      --shadow-soft: 0 20px 50px rgba(0,0,0,0.10);
+      --shadow-strong: 0 35px 85px rgba(0,0,0,0.18);
+      --radius: 0px;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px);
+      background-size: 36px 36px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(0,0,0,0.06) 0.6px, transparent 0.7px),
+        radial-gradient(circle at 75% 65%, rgba(0,0,0,0.05) 0.6px, transparent 0.7px);
+      background-size: 12px 12px, 16px 16px;
+      opacity: 0.22;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 24px 24px 48px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: lowercase;
+      margin-bottom: 18px;
+    }
+
+    .search-wrap {
+      width: min(420px, 100%);
+      margin: 0 auto 16px;
+      background: var(--paper-strong);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      padding: 14px 16px;
+    }
+
+    .search-wrap label {
+      display: block;
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-bottom: 7px;
+      text-transform: lowercase;
+      letter-spacing: 0.05em;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .hero {
+      max-width: 1080px;
+      margin: 0 auto 26px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(3rem, 10vw, 8rem);
+      line-height: 0.88;
+      letter-spacing: -0.08em;
+      font-weight: 900;
+      text-transform: lowercase;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 .accent { color: var(--accent); }
+
+    .hero p {
+      max-width: 820px;
+      margin: 0 auto;
+      line-height: 1.65;
+      font-size: 1rem;
+      color: rgba(17,17,17,0.82);
+      text-transform: lowercase;
+    }
+
+    .controls {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: var(--paper-strong);
+      box-shadow: var(--shadow-soft);
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      text-transform: lowercase;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .pill:hover,
+    .pill.active {
+      background: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .stage {
+      position: relative;
+      width: min(1400px, 100%);
+      min-height: 1180px;
+      margin: 0 auto;
+    }
+
+    .panel {
+      position: absolute;
+      width: min(33vw, 470px);
+      min-width: 280px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+      cursor: pointer;
+      transition:
+        transform 0.45s ease,
+        opacity 0.45s ease,
+        filter 0.45s ease,
+        box-shadow 0.45s ease,
+        background 0.45s ease;
+      transform-origin: center center;
+    }
+
+    .panel:hover { transform: scale(1.02); }
+
+    .panel.active {
+      transform: scale(1.16);
+      z-index: 40 !important;
+      box-shadow: var(--shadow-strong);
+      background: rgba(255,255,255,0.84);
+    }
+
+    .panel.inactive {
+      transform: scale(0.92);
+      opacity: 0.5;
+      filter: blur(0.7px);
+    }
+
+    .panel-head {
+      height: 72px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      font-size: 0.86rem;
+      text-transform: lowercase;
+    }
+
+    .dots { display: flex; gap: 6px; }
+    .dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+    }
+
+    .num {
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -0.06em;
+    }
+
+    .image-area {
+      position: relative;
+      height: 320px;
+      overflow: hidden;
+      background: #ddddD6;
+    }
+
+    .image-area img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(1) contrast(1.04);
+      transform: scale(1.02);
+      transition: transform 0.55s ease, filter 0.55s ease;
+    }
+
+    .panel.active .image-area img {
+      transform: scale(1.12);
+      filter: grayscale(1) contrast(1.12);
+    }
+
+    .overlay-block,
+    .overlay-soft,
+    .overlay-cut {
+      position: absolute;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .overlay-block {
+      width: 94px;
+      height: 94px;
+      background: var(--accent);
+      top: 24px;
+      left: -20px;
+    }
+
+    .overlay-soft {
+      width: 108px;
+      height: 76px;
+      background: rgba(140,255,25,0.34);
+      right: 20px;
+      bottom: 20px;
+    }
+
+    .overlay-cut {
+      width: 126px;
+      height: 40px;
+      background: rgba(255,255,255,0.78);
+      top: 16px;
+      right: 28px;
+    }
+
+    .panel-body {
+      padding: 18px 18px 22px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 7px 12px;
+      border: 1px solid rgba(17,17,17,0.12);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: lowercase;
+      margin-bottom: 12px;
+    }
+
+    .name {
+      font-size: clamp(2.15rem, 4.6vw, 4.5rem);
+      line-height: 0.88;
+      letter-spacing: -0.08em;
+      font-weight: 900;
+      text-transform: lowercase;
+      margin-bottom: 10px;
+      max-width: 8ch;
+    }
+
+    .talk-title {
+      font-size: 1rem;
+      line-height: 1.25;
+      color: rgba(17,17,17,0.72);
+      margin-bottom: 14px;
+      text-transform: lowercase;
+    }
+
+    .desc {
+      font-size: 0.98rem;
+      line-height: 1.58;
+      max-width: 35ch;
+      text-transform: lowercase;
+    }
+
+    .panel.vanessa {
+      left: 5%;
+      top: 130px;
+      z-index: 11;
+    }
+
+    .panel.vanessa .image-area {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 95%);
+    }
+
+    .panel.kelsey {
+      left: 36%;
+      top: 340px;
+      z-index: 15;
+    }
+
+    .panel.kelsey .overlay-block {
+      width: 68px;
+      height: 120px;
+      left: auto;
+      right: -16px;
+      top: 42px;
+    }
+
+    .panel.kelsey .overlay-cut {
+      width: 90px;
+      height: 64px;
+      right: auto;
+      left: 18px;
+      top: 18px;
+    }
+
+    .panel.kelsey .image-area {
+      clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%);
+    }
+
+    .panel.anna {
+      right: 4%;
+      top: 120px;
+      z-index: 10;
+    }
+
+    .panel.anna .overlay-block {
+      width: 78px;
+      height: 150px;
+      left: auto;
+      right: 24px;
+      top: -10px;
+    }
+
+    .panel.anna .overlay-soft {
+      width: 120px;
+      height: 60px;
+      left: -20px;
+      right: auto;
+      bottom: 24px;
+    }
+
+    .panel.anna .image-area {
+      clip-path: inset(0 0 0 0);
+    }
+
+    .side-text {
+      position: absolute;
+      width: 270px;
+      background: var(--paper-strong);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      padding: 16px;
+      text-transform: lowercase;
+      line-height: 1.6;
+      z-index: 6;
+    }
+
+    .side-text h3 {
+      font-size: 0.8rem;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .side-text p {
+      font-size: 0.92rem;
+    }
+
+    .note-left {
+      left: 2%;
+      top: 740px;
+    }
+
+    .note-right {
+      right: 2%;
+      top: 760px;
+    }
+
+    .bottom-info {
+      width: min(1280px, 100%);
+      margin: 48px auto 0;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 16px;
+    }
+
+    .info-box {
+      background: var(--paper-strong);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      padding: 18px;
+      text-transform: lowercase;
+    }
+
+    .info-box h3 {
+      font-size: 1.08rem;
+      margin-bottom: 10px;
+    }
+
+    .info-box p,
+    .info-box li {
+      font-size: 0.96rem;
+      line-height: 1.6;
+    }
+
+    .info-box ul { padding-left: 18px; }
+
+    .footer-note {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      z-index: 20;
+      background: var(--paper-strong);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      text-transform: lowercase;
+    }
+
+    @media (max-width: 1100px) {
+      .hero { text-align: left; }
+      .controls { justify-content: flex-start; }
+      .search-wrap { margin-left: 0; margin-right: 0; }
+      .stage {
+        min-height: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .panel,
+      .side-text {
+        position: relative;
+        width: 100%;
+        min-width: 0;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+      }
+      .panel:hover,
+      .panel.active,
+      .panel.inactive {
+        transform: none;
+        opacity: 1;
+        filter: none;
+      }
+      .bottom-info {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <div>ocad u / experimental form ii / andia</div>
+      <div>interactive research poster / scale</div>
+    </div>
+
+    <div class="search-wrap">
+      <label for="searchInput">search speaker</label>
+      <input id="searchInput" type="text" placeholder="type vanessa, kelsey, or anna" />
+    </div>
+
+    <section class="hero">
+      <h1>research talks <span class="accent">shift</span> with focus</h1>
+      <p>
+        a layered environment where research is revealed through interaction. each speaker becomes more visible when selected, while the others recede. scale and depth act as a language of attention, interpretation, and partial visibility.
+      </p>
+      <div class="controls">
+        <button class="pill active" data-target="vanessa">vanessa</button>
+        <button class="pill" data-target="kelsey">kelsey</button>
+        <button class="pill" data-target="anna">anna</button>
+      </div>
+    </section>
+
+    <section class="stage">
+      <article class="panel vanessa active" id="vanessa">
+        <div class="panel-head">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <div class="num">01</div>
+        </div>
+        <div class="image-area">
+          <img src="vanessa.jpg" alt="vanessa dion fletcher" />
+          <div class="overlay-block"></div>
+          <div class="overlay-soft"></div>
+          <div class="overlay-cut"></div>
+        </div>
+        <div class="panel-body">
+          <div class="tag">participation / body / collaboration</div>
+          <h2 class="name">vanessa dion fletcher</h2>
+          <div class="talk-title">big doll // xwat naaniitus</div>
+          <p class="desc">a project shaped from the heart rather than the head. personal, collaborative, and open to audience participation.</p>
+        </div>
+      </article>
+
+      <article class="panel kelsey inactive" id="kelsey">
+        <div class="panel-head">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <div class="num">02</div>
+        </div>
+        <div class="image-area">
+          <img src="kelsey.jpg" alt="kelsey pugh" />
+          <div class="overlay-block"></div>
+          <div class="overlay-soft"></div>
+          <div class="overlay-cut"></div>
+        </div>
+        <div class="panel-body">
+          <div class="tag">fossil / distortion / reconstruction</div>
+          <h2 class="name">kelsey pugh</h2>
+          <div class="talk-title">reconstructing ancient faces</div>
+          <p class="desc">damaged fossils can distort the past. reconstruction becomes a method of imagining what once existed.</p>
+        </div>
+      </article>
+
+      <article class="panel anna inactive" id="anna">
+        <div class="panel-head">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <div class="num">03</div>
+        </div>
+        <div class="image-area">
+          <img src="anna.jpg" alt="anna stielau" />
+          <div class="overlay-block"></div>
+          <div class="overlay-soft"></div>
+          <div class="overlay-cut"></div>
+        </div>
+        <div class="panel-body">
+          <div class="tag">light / power / water</div>
+          <h2 class="name">anna stielau</h2>
+          <div class="talk-title">arts of darkness: rethinking photography from south africa</div>
+          <p class="desc">photography depends on invisible infrastructures. light, power, and water shape what can be seen and what remains impossible.</p>
+        </div>
+      </article>
+
+      <div class="side-text note-left">
+        <h3>focus</h3>
+        <p>clicking a block changes hierarchy. one research topic comes forward while the others remain present but partial.</p>
+      </div>
+
+      <div class="side-text note-right">
+        <h3>visibility</h3>
+        <p>the overlapping composition suggests that research is never fully visible at once. interpretation happens through shifting focus.</p>
+      </div>
+    </section>
+
+    <section class="bottom-info">
+      <div class="info-box">
+        <h3>event</h3>
+        <p>faculty of arts &amp; science research talks at ocad university featuring three different approaches: collaborative art, fossil reconstruction, and infrastructural thinking around photography.</p>
+      </div>
+      <div class="info-box">
+        <h3>why scale?</h3>
+        <ul>
+          <li>scale changes hierarchy.</li>
+          <li>scale turns attention into structure.</li>
+          <li>scale makes interpretation visible.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer-note">click panels / type in search / shift focus</div>
+
+  <script>
+    const panels = document.querySelectorAll('.panel');
+    const pills = document.querySelectorAll('.pill');
+    const searchInput = document.getElementById('searchInput');
+
+    function activatePanel(id) {
+      panels.forEach(panel => {
+        panel.classList.remove('active');
+        panel.classList.add('inactive');
+      });
+
+      pills.forEach(pill => pill.classList.remove('active'));
+
+      const activePanel = document.getElementById(id);
+      const activePill = document.querySelector(`.pill[data-target="${id}"]`);
+
+      if (activePanel) {
+        activePanel.classList.add('active');
+        activePanel.classList.remove('inactive');
+      }
+
+      if (activePill) activePill.classList.add('active');
+    }
+
+    panels.forEach(panel => {
+      panel.addEventListener('click', () => activatePanel(panel.id));
+    });
+
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => activatePanel(pill.dataset.target));
+    });
+
+    searchInput.addEventListener('input', () => {
+      const value = searchInput.value.toLowerCase().trim();
+      if (value.includes('van')) activatePanel('vanessa');
+      else if (value.includes('kel')) activatePanel('kelsey');
+      else if (value.includes('ann')) activatePanel('anna');
+    });
+  </script>
+</body>
+</html>

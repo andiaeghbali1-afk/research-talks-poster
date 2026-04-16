@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research Talks: Shift with Focus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #efeee8;
+      --paper: rgba(255,255,255,0.82);
+      --paper-soft: rgba(255,255,255,0.7);
+      --text: #121212;
+      --muted: rgba(18,18,18,0.68);
+      --line: rgba(18,18,18,0.08);
+      --accent: #97ff1f;
+      --shadow-soft: 0 18px 42px rgba(0,0,0,0.10);
+      --shadow-strong: 0 44px 100px rgba(0,0,0,0.20);
+      --ease: 620ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+      background-size: 34px 34px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 18% 22%, rgba(0,0,0,0.05) 0.6px, transparent 0.8px),
+        radial-gradient(circle at 80% 65%, rgba(0,0,0,0.05) 0.6px, transparent 0.8px);
+      background-size: 14px 14px, 18px 18px;
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 28px 24px 36px;
+    }
+
+    .hero {
+      width: min(1380px, 100%);
+      margin: 0 auto 24px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 26px;
+      align-items: start;
+    }
+
+    .hero-left {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: rgba(18,18,18,0.8);
+    }
+
+    .hero-left .accent { color: #79cf19; }
+
+    .hero-main h1 {
+      font-size: clamp(3.3rem, 9vw, 7.1rem);
+      line-height: 0.9;
+      letter-spacing: -0.08em;
+      font-weight: 700;
+      margin-bottom: 18px;
+      max-width: 8.5ch;
+    }
+
+    .hero-main p {
+      max-width: 60ch;
+      line-height: 1.62;
+      color: rgba(18,18,18,0.82);
+      font-size: 1rem;
+    }
+
+    .hero-left .accent { color: #79cf19; }
+
+    .hero-main h1 {
+      font-size: clamp(3.3rem, 9vw, 7.1rem);
+      line-height: 0.9;
+      letter-spacing: -0.08em;
+      font-weight: 700;
+      margin-bottom: 18px;
+      max-width: 8.5ch;
+    }
+
+    .hero-main p {
+      max-width: 60ch;
+      line-height: 1.62;
+      color: rgba(18,18,18,0.82);
+      font-size: 1rem;
+    }
+
+    .stage {
+      position: relative;
+      width: min(1380px, 100%);
+      min-height: 980px;
+      margin: 0 auto;
+    }
+
+    .panel {
+      position: absolute;
+      background: var(--paper-soft);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+      transition:
+        transform var(--ease),
+        opacity var(--ease),
+        filter var(--ease),
+        box-shadow var(--ease),
+        background var(--ease),
+        left var(--ease),
+        top var(--ease),
+        width var(--ease),
+        height var(--ease);
+      cursor: pointer;
+      transform-origin: center center;
+      user-select: none;
+    }
+
+    .panel.active {
+      z-index: 40 !important;
+      box-shadow: var(--shadow-strong);
+      background: var(--paper);
+      filter: blur(0px);
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .panel.inactive {
+      opacity: 0.45;
+      filter: blur(0.6px) grayscale(0.05);
+      transform: scale(0.92);
+      z-index: 18;
+    }
+
+    .panel .panel-inner {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: 0.96fr 1.12fr;
+    }
+
+    .panel.kelsey .panel-inner {
+      grid-template-columns: 1fr 1.02fr;
+    }
+
+    .panel.anna .panel-inner {
+      grid-template-columns: 0.9fr 1fr;
+    }
+
+    .copy {
+      padding: 28px 28px 24px;
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .num {
+      font-size: 1.8rem;
+      line-height: 1;
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      margin-bottom: 18px;
+    }
+
+    .name {
+      font-size: clamp(2.7rem, 5vw, 5.2rem);
+      line-height: 0.92;
+      letter-spacing: -0.08em;
+      font-weight: 500;
+      margin-bottom: 18px;
+      max-width: 7ch;
+    }
+
+    .meta {
+      font-size: 0.95rem;
+      color: rgba(18,18,18,0.72);
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    .desc {
+      max-width: 28ch;
+      line-height: 1.64;
+      font-size: 1rem;
+      color: rgba(18,18,18,0.84);
+    }
+
+    .visual {
+      position: relative;
+      overflow: hidden;
+      background: #dcdcd6;
+    }
+
+    .visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 28%;
+      filter: grayscale(1) contrast(1.02);
+      transition: transform var(--ease), filter var(--ease), opacity var(--ease), object-position var(--ease);
+      transform: scale(1.01);
+    }
+
+    .panel.kelsey .visual img {
+      object-position: center 10%;
+    }
+
+    .panel.active .visual img {
+      transform: scale(1.04);
+      filter: grayscale(1) contrast(1.1);
+      opacity: 1;
+    }
+
+    .shape,
+    .shape-soft,
+    .shape-line {
+      position: absolute;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .shape { background: var(--accent); }
+    .shape-soft { background: rgba(151,255,31,0.22); }
+    .shape-line { background: rgba(255,255,255,0.56); }
+
+    .panel.vanessa .shape {
+      width: 34px; height: 34px; left: 28px; bottom: 28px;
+    }
+    .panel.vanessa .shape-soft {
+      width: 92px; height: 54px; right: 28px; top: 28px;
+    }
+    .panel.vanessa .shape-line {
+      width: 120px; height: 2px; left: 28px; top: 26px;
+    }
+
+    .panel.kelsey .shape {
+      width: 26px; height: 88px; right: 28px; top: 38px;
+    }
+    .panel.kelsey .shape-soft {
+      width: 70px; height: 70px; left: 28px; bottom: 28px;
+    }
+    .panel.kelsey .shape-line {
+      width: 96px; height: 2px; left: 28px; top: 26px;
+    }
+
+    .panel.anna .shape {
+      width: 34px; height: 110px; right: 26px; top: 22px;
+    }
+    .panel.anna .shape-soft {
+      width: 106px; height: 42px; left: 24px; bottom: 26px;
+    }
+    .panel.anna .shape-line {
+      width: 92px; height: 2px; right: 28px; top: 28px;
+    }
+
+    .panel.vanessa {
+      width: 720px;
+      height: 490px;
+      left: 20%;
+      top: 180px;
+      z-index: 22;
+    }
+
+    .panel.kelsey {
+      width: 470px;
+      height: 490px;
+      left: 48%;
+      top: 92px;
+      z-index: 12;
+    }
+
+    .panel.anna {
+      width: 320px;
+      height: 450px;
+      left: 80%;
+      top: 300px;
+      z-index: 10;
+    }
+
+    .panel.vanessa.active {
+      width: 780px;
+      height: 540px;
+      left: 26%;
+      top: 150px;
+    }
+
+    .panel.kelsey.active {
+      width: 780px;
+      height: 540px;
+      left: 26%;
+      top: 150px;
+    }
+
+    .panel.anna.active {
+      width: 780px;
+      height: 540px;
+      left: 26%;
+      top: 150px;
+    }
+
+    .footer-bar {
+      position: absolute;
+      width: 100%;
+      left: 0;
+      bottom: 0;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      font-size: 0.98rem;
+    }
+
+    .footer-bar .small {
+      color: var(--muted);
+      max-width: 50ch;
+    }
+
+    .nav {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav button {
+      border: none;
+      background: transparent;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      padding: 0;
+      transition: color 180ms ease;
+    }
+
+    .nav button.active,
+    .nav button:hover {
+      color: #6ebf15;
+    }
+
+    @media (max-width: 1320px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .hero-right { max-width: 30ch; }
+      .stage {
+        min-height: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .panel,
+      .footer-bar {
+        position: relative;
+        width: 100% !important;
+        height: auto !important;
+        left: auto !important;
+        top: auto !important;
+        right: auto !important;
+      }
+      .panel .panel-inner {
+        grid-template-columns: 1fr;
+      }
+      .visual {
+        height: 420px;
+      }
+      .panel.active,
+      .panel.inactive {
+        transform: none;
+        opacity: 1;
+        filter: none;
+      }
+      .footer-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .visual { height: 340px; }
+      .copy { padding: 20px; }
+      .name { font-size: 2.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-left">
+        Three Researchers.<br>
+        Three Perspectives.<br>
+        <span class="accent">One Conversation.</span>
+      </div>
+      <div class="hero-main">
+        <h1>Research Talks:<br>Shift<br>with<br>Focus</h1>
+        <p>
+          A layered environment where research is revealed through interaction. Each speaker becomes more visible when selected, while others recede. Scale and depth act as a language of attention, interpretation, and partial visibility.
+        </p>
+      </div>
+      </section>
+
+    <section class="stage">
+      <article class="panel vanessa active" id="vanessa">
+        <div class="panel-inner">
+          <div class="copy">
+            <div class="num">01</div>
+            <h2 class="name">Vanessa Dion Fletcher</h2>
+            <div class="meta">Participation / Body / Collaboration</div>
+            <p class="desc">A project shaped from the heart rather than the head. Personal, collaborative, and open to audience participation.</p>
+          </div>
+          <div class="visual">
+            <img src="vanessa.jpg" alt="Vanessa Dion Fletcher portrait">
+            <div class="shape"></div>
+            <div class="shape-soft"></div>
+            <div class="shape-line"></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel kelsey inactive" id="kelsey">
+        <div class="panel-inner">
+          <div class="copy">
+            <div class="num">02</div>
+            <h2 class="name">Kelsey Pugh</h2>
+            <div class="meta">Fossil / Distortion / Reconstruction</div>
+            <p class="desc">Damaged fossils can distort the past. Reconstruction becomes a method of imagining what once existed.</p>
+          </div>
+          <div class="visual">
+            <img src="kelsey.jpg" alt="Kelsey Pugh portrait">
+            <div class="shape"></div>
+            <div class="shape-soft"></div>
+            <div class="shape-line"></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel anna inactive" id="anna">
+        <div class="panel-inner">
+          <div class="copy">
+            <div class="num">03</div>
+            <h2 class="name">Anna Stielau</h2>
+            <div class="meta">Light / Power / Water</div>
+            <p class="desc">Photography depends on invisible infrastructures. Light, power, and water shape what can be seen and what remains impossible.</p>
+          </div>
+          <div class="visual">
+            <img src="anna.jpg" alt="Anna Stielau portrait">
+            <div class="shape"></div>
+            <div class="shape-soft"></div>
+            <div class="shape-line"></div>
+          </div>
+        </div>
+      </article>
+
+      <div class="footer-bar">
+        <div class="small">Click a speaker to explore their research.</div>
+        <div class="nav">
+          <button class="nav-btn active" data-target="vanessa">Vanessa</button>
+          <button class="nav-btn" data-target="kelsey">Kelsey</button>
+          <button class="nav-btn" data-target="anna">Anna</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const panels = document.querySelectorAll('.panel');
+    const navButtons = document.querySelectorAll('.nav-btn');
+
+    function activatePanel(id) {
+      panels.forEach(panel => {
+        panel.classList.remove('active');
+        panel.classList.add('inactive');
+      });
+
+      navButtons.forEach(btn => btn.classList.remove('active'));
+
+      const activePanel = document.getElementById(id);
+      const activeBtn = document.querySelector(`.nav-btn[data-target="${id}"]`);
+
+      if (activePanel) {
+        activePanel.classList.add('active');
+        activePanel.classList.remove('inactive');
+      }
+
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    panels.forEach(panel => {
+      panel.addEventListener('click', () => activatePanel(panel.id));
+    });
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => activatePanel(btn.dataset.target));
+    });
+  </script>
+</body>
+</html>
